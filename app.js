@@ -23,6 +23,9 @@ const port = 3000;
 const app = express();
 
 app.use(bodyParser.json())
+app.use(express.urlencoded({
+  extended: true
+}))
 
 let db;
 let generator;
