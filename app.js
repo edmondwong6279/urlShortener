@@ -24,11 +24,16 @@ const app = express();
 
 app.use(bodyParser.json())
 
-// instantiate a generator for strings of length 3 using 10 characters.
-// here, we can have 10**3 = 1000 number of strings.
-const generator = utils.shortGenerator(10,3);
-const db = new sqlite3.Database(':memory:');
-utils.createDB(db);
+let db;
+let generator;
+
+const setUp = async () => {
+    db = new sqlite3.Database('data.db');
+    startIdx = await utils.createDB(db)
+    generator = utils.shortGenerator(10,3,startIdx);
+}
+
+setUp();
 
 
 // single method that queries for a url, or for a short.
@@ -36,7 +41,7 @@ const checkTable = async (stringToCheck, checkUrl=true) => {
     let [field1, field2] = ['url', 'short'];
     if (checkUrl) { [field1, field2] = ['short', 'url'];}
     return new Promise(resolve => {
-        db.all(`SELECT ${field1} FROM urlShortcuts WHERE ${field2}="${stringToCheck}"`, (err, rows) => {
+        db.all(`SELECT ${field1} FROM urlShortcuts WHERE ${field2}=?`,stringToCheck, (err, rows) => {
             resolve(rows);
         })
     })
@@ -65,6 +70,7 @@ const createHandle = async (req,res) => {
         res.status(400).send('URL shortcut already created')
     }
 }
+
 
 const getHandle = async (req,res) => {
     const checkShortResult = await checkTable(req.params.shortId, checkUrl=false);
