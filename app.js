@@ -22,8 +22,7 @@ const utils = require('./utils');
 const port = 3000;
 const app = express();
 
-app.use(bodyParser.json())
-app.use(express.urlencoded({
+app.use(bodyParser.json(), express.urlencoded({
   extended: true
 }))
 
@@ -63,8 +62,8 @@ const createHandle = async (req,res) => {
             console.log('Added entry to table.')
             utils.logTable(db);
 
-            // respond
-            res.send({short: `http://localhost:3000/${generated}`})
+            // respond with just a simple html thing
+            res.send(`<p>http://localhost:3000/${generated}</p>`);
             return;
         } else {
             res.status(400).send('String generator no longer yielding.')
